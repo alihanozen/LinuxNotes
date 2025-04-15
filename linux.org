@@ -1,0 +1,1093 @@
+#+SETUPFILE: ./setup/setup.org
+* \Huge *Linux Notları* \break \break \normalsize \break \break \break \break \Large Alihan Özen \break \break \break \break \break \break \break \break \break \break \break \break \break
+** Bölüm: Temel Bilgiler
+Linux sistemlerinde kullanıcıların sistemle etkileşim kurduğu iki temel arayüz bulunur: *konsol* ve *terminal*.
+
+**Konsol (Console)**, fiziksel olarak bilgisayara bağlı olan ekran, klavye ve fare aracılığıyla erişilen arayüzdür.
+Örneğin, sistemin başında oturan bir kullanıcı ~Ctrl + Alt + F1~ tuş kombinasyonunu kullanarak farklı bir TTY (teletype terminal) ekranına geçebilir.
+Bu ekranlarda kullanıcı adı ve şifresi ile giriş yapıldığında bir *kabuk (shell)* ortamı açılır.
+Shell, komut yazabildiğimiz ve sistemle doğrudan iletişim kurabildiğimiz bir metin arayüzüdür.
+Oturumdan çıkmak için ~Ctrl + D~ tuş kombinasyonu kullanılabilir.
+
+**Terminal**, uzak bir sistemdeki shell'e erişim sağlamak için kullanılan programlardır.
+Terminal genellikle grafik arayüzden başlatılır ve SSH gibi protokollerle uzak makinelerdeki kabuğa bağlanmak için kullanılır.
+
+Linux sistemlerinde en çok kullanılan kabuk programları şunlardır:
+
+- bash
+- zsh
+- tsch
+
+Kabuk ekranında kullanıcı türüne göre prompt (komut satırı işareti) değişir:
+- `#` simgesi: Root (yönetici) kullanıcıyı gösterir.
+- `$` simgesi: Normal kullanıcıyı temsil eder.
+
+**Dosya Sistemi Temel Dizileri**
+
+Linux’un dosya sistemi belirli temel dizinlere göre organize edilmiştir. Her dizin belirli bir işlevi yerine getirir:
+
+- /bin : Temel kullanıcı komutlarını içerir.
+- /sbin : Sistem yöneticilerine yönelik yönetimsel komutlar.
+- /lib : Yazılım kütüphaneleri burada yer alır.
+- /usr : Kullanıcı tarafından yüklenen yazılımların tutulduğu dizindir.
+  - /usr/bin : Kullanıcı araçları
+  - /usr/share : Paylaşımlı veri dosyaları (ikonlar, yerel ayarlar)
+  - /usr/local : Manuel olarak kurulan yazılımlar için özel dizin
+- /opt : Opsiyonel olarak kurulan 3. parti yazılımlar burada yer alabilir.
+- /var : Log dosyaları, e-posta verileri, yazdırma kuyrukları gibi değişken içerikler burada bulunur.
+- /tmp : Tüm kullanıcılar tarafından kullanılabilen geçici dosyalar bu dizine yazılır.
+- /home : Kullanıcıların kişisel klasörleri. Her kullanıcıya ait bir alt dizin bulunur (örn. /home/alihan).
+- /etc : Tüm sistemin ve uygulamaların yapılandırma dosyaları bu dizinde yer alır.
+- /etc/passwd : Kullanıcı adı, ev dizini, kullandığı shell gibi temel kullanıcı bilgilerini içerir.
+
+** Bölüm: Temel Komutlar
+*** Dizinler Arasında Gezinme
+\vspace{2mm}
+#+begin_src bash -n -r
+cd            # Mevcut dizini değiştirir
+cd ~          # Kullanıcının ana dizinine gider
+cd -          # Önceki bulunduğun dizine geri döner
+cd ..         # Bir üst dizine geçer
+pwd           # Mevcut dizinin yolunu gösterir
+#+end_src
+
+*** Dosya Listeleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+ls            # Dizin içeriğini listeler
+ls -l         # Detaylı listeleme (izinler, boyut, kullanıcı, tarih)
+ls -a         # Gizli dosyalar dahil tüm içeriği gösterir
+ls -R         # Alt dizinlerle birlikte rekürsif listeleme yapar
+ls -lS        # Dosya boyutuna göre büyükten küçüğe sıralar
+ls -lt        # Dosyaları zamana göre sıralar (yeniden eskiye)
+ls -ltr       # Zamana göre ters sıralama (eskiden yeniye)
+#+end_src
+
+- Not :: Terminal ekranında kaydırma (scroll) mümkündür; fakat gerçek konsol ekranlarında bu özellik yoktur.
+
+*** Komut Yardımı Alma
+
+\vspace{2mm}
+#+begin_src bash -n -r
+man <komut>   # Komut hakkında detaylı kılavuz sayfasını açar
+info <komut>  # Bazı komutlar için alternatif yardım ekranı
+#+end_src
+
+Man sayfasında gezinmek için:
+- q : çıkış
+- b : bir sayfa yukarı
+- /metin : metin içinde arama
+
+Bazı man sayfaları sistemde yer almayabilir; bu durumda info komutu alternatif olarak kullanılabilir.
+
+Ek bilgi: ls -al komutu geçerli iken ls --all --long geçersizdir.
+
+*** Komutların Nerede Olduğunu Bulmak
+
+\vspace{2mm}
+#+begin_src bash -n -r
+whereis <komut>   # Komutun bulunduğu dizin(ler) hakkında bilgi verir
+which <komut>     # Komutun sistem PATH'inde ilk nerede bulunduğunu gösterir
+whatis <komut>    # Komutun ne işe yaradığını kısa ve özet şekilde açıklar
+whoami            # Şu an oturum açmış olan kullanıcı adını gösterir
+#+end_src
+
+** Bölüm: Dosyalar ile İlgili İşlemler
+
+Linux'ta dosya yönetimi, sistemin temel taşlarından biridir. Bu bölümde dosya ve dizinlerle ilgili en sık kullanılan komutlar detaylı şekilde ele alınacaktır.
+
+*** Dosya Listeleme
+
+#+begin_src bash -n -r
+ls           # Dizin içeriğini listeler
+#+end_src
+
+*** Dosya Kopyalama (cp)
+
+Bir dosyayı başka bir dosya adıyla veya dizine kopyalamak için ~cp~ komutu kullanılır:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cp dosya yeni_dosya         # Dosyayı yeni adla kopyalar
+cp dosya /tmp/              # tmp dizinine aynı isimle kopyalar
+cp dosya1 dosya2 /tmp/      # Her iki dosyayı /tmp/ dizinine kopyalar (klasör varsa)
+cp dosya /tmp/yeni_ad       # Dosyayı belirtilen adla kopyalar
+cp -i dosya hedef           # Kopyalama öncesi kullanıcıdan onay ister
+cp -R dizin hedef           # Dizinleri ve içeriklerini rekürsif şekilde kopyalar
+#+end_src
+
+*** Dosya Silme (rm)
+
+Dosyaları silmek için ~rm~ komutu kullanılır. Parametrelerle birlikte davranışı değiştirilebilir:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+rm dosya           # Dosyayı siler
+rm -i dosya        # Silmeden önce onay ister
+rm -f dosya        # Zorla siler, hata mesajı göstermez
+rm -rf dizin       # Dizin ve içeriğini sormadan siler
+#+end_src
+
+*** Dizin Oluşturma ve Silme
+
+Yeni dizin oluşturmak ve boş dizinleri silmek için şu komutlar kullanılır:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+mkdir dizin_adı         # Yeni dizin oluşturur
+rmdir dizin_adı         # Boş dizini siler
+mkdir -p 1/2/3          # Alt dizinlerle birlikte oluşturur
+rmdir -p dizin_adı      # Alt dizinlerden başlayarak boş olanları siler
+#+end_src
+
+*** Dizin Yapısını Görüntüleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+tree <<dizin_adı>>       # Dizin yapısını ağaç görünümünde gösterir
+#+end_src
+
+*** Dosya Taşıma / Yeniden Adlandırma (mv)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+mv <<kaynak>> <<hedef>>  # Dosyayı taşır veya yeniden adlandırır
+#+end_src
+
+*** Dosya İçeriğini Görüntüleme (cat, more, less)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cat dosya              # Dosyanın içeriğini görüntüler
+cat dosya1 dosya2      # İki dosyanın içeriğini peş peşe görüntüler
+cat -n dosya           # Satır numaraları ile görüntüler
+less dosya             # Sayfa sayfa gezinmek için
+more dosya             # Daha basit bir görüntüleyici
+#+end_src
+
+*** Dosyanın Başını veya Sonunu Görmek
+
+\vspace{2mm}
+#+begin_src bash -n -r
+head -5 dosya          # İlk 5 satırı görüntüler
+tail -5 dosya          # Son 5 satırı görüntüler
+#+end_src
+
+*** Dosya Tipini Öğrenme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+file dosya             # Dosyanın türünü analiz eder
+#+end_src
+
+*** Dosya İstatistikleri (wc)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+wc -l dosya            # Satır sayısını verir
+wc -w dosya            # Kelime sayısını verir
+wc -c dosya            # Bayt sayısını verir
+#+end_src
+
+*** Dosya ve Dizin Arama (find)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+find /hedef -name file.png                 # Belirli isimdeki dosyaları arar
+find /hedef -name .doctrees -type f        # Sadece dosya olanları filtreler
+find /hedef -name .cache -type d           # Sadece klasörleri bulur
+#+end_src
+
+*** Disk Kullanımı Görüntüleme (du)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+du dizin/             # Dizin içeriğinin boyutunu verir
+du -s *               # Kısa özet formatında gösterir
+du -sm *              # Megabayt cinsinden gösterir
+#+end_src
+
+*** Büyük Dosyaları Bulma
+
+\vspace{2mm}
+#+begin_src bash -n -r
+find /hedef -size +1M     # 1MB'tan büyük dosyaları arar
+#+end_src
+
+*** Boru Hattı (Pipe) ve Çıktı Yönlendirme
+
+Komut çıktıları genellikle başka komutlara aktarılabilir veya dosyalara yazılabilir. Bunun için pipe (`|`) ve yönlendirme (`>`, `-`) kullanılır.
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cat dos1- dos2             # Birleştirir, aynı ad varsa ezer
+tail -f dosya              # Dosyanın canlı değişimini takip eder
+#+end_src
+
+*** Dosya Bağlantıları (Link)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+ln a.txt b.txt             # Hard link oluşturur (kaynak silinse bile hedef kalır)
+ln -s a.txt b.txt          # Soft (sembolik) link oluşturur
+#+end_src
+
+Not:
+- Soft link mavi renkte görünür.
+- Kaynak dosya silinirse soft link çalışmaz.
+- Klasörler için hard link oluşturulamaz.
+
+*** Diğer Dosya Araçları
+
+\vspace{2mm}
+#+begin_src bash -n -r
+xviewer                   # Görsel dosyaları açmak için kullanılan program
+convert x.png x.jpg       # Dosya uzantısını dönüştürür
+wget http://...           # İnternet üzerinden dosya indirir
+wget --mirror http://...  # Siteyi tümüyle indirir
+lynx http://...           # Konsol tabanlı tarayıcı (resim göstermez)
+curl http://...           # İçeriği ekrana basar
+curl -o x.pdf http://...  # Dosyayı indirir ve belirli bir isme kaydeder
+#+end_src
+
+Ek Bilgi:
+- `/usr/share/doc`: Ubuntu’da kurulu paketlerin dökümantasyonları burada bulunur.
+
+** Bölüm: Processler
+Linux'ta çalışan her uygulama bir *proses* (süreç) olarak adlandırılır. Bu prosesler, işlemci zamanı,
+bellek ve diğer sistem kaynaklarını kullanır. Sistem üzerinde yürütülen her işlem için bir kimlik numarası (PID - Process ID) atanır.
+
+*** Proses Görüntüleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+ps              # Kullanıcının terminalindeki aktif prosesleri gösterir
+ps a            # Kullanıcının tüm terminallerdeki proseslerini listeler
+ps ax           # Tüm kullanıcıların terminal dışı proseslerini de gösterir
+ps aux          # Proseslerin sahiplerini ve kaynak tüketimlerini de listeler
+ps ax | more    # Liste uzun ise sayfa sayfa görüntülenmesini sağlar
+#+end_src
+
+- ~PID~: Her prosesin sistemdeki benzersiz numarasıdır.
+- ~TTY~: Prosesin çalıştığı terminali belirtir; terminal dışı çalışanlar '?' olarak görünür.
+
+*** Canlı Proses Takibi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+top             # Sistem kaynaklarını en çok tüketen prosesleri canlı olarak gösterir
+#+end_src
+
+- Top ekranında 'R' çalışan, 'S' uyku modunda, 'D' kilitli/zombi prosesleri belirtir.
+- 'AG' gibi kısaltmalar, bekleyen süreçleri (örneğin yazıcı kuyruğu) temsil eder.
+
+*** Proses Oluşumu
+
+- Prosesler genellikle bir üst (parent) proses tarafından oluşturulur:
+  - ~fork~: Yeni bir prosesin oluşturulması
+  - ~exec~: Oluşturulan prosesin çalıştırılması
+- ~PPID~: Parent Process ID yani ana prosesin kimlik numarasıdır.
+
+*** Proses Şeması
+
+\vspace{2mm}
+#+begin_src bash -n -r
+pstree          # Proseslerin ağaç yapısında gösterimi
+#+end_src
+
+*** Arka Planda Komut Çalıştırma
+
+\vspace{2mm}
+#+begin_src bash -n -r
+komut &         # Komutu arka planda çalıştırır
+(komut) > /dev/null 2>&1   # Çıktı ve hataları bastırarak arka planda çalıştır
+#+end_src
+
+*** Çalışan İşleri Yönetmek
+
+\vspace{2mm}
+#+begin_src bash -n -r
+jobs            # Terminalde çalışan görevleri listeler
+fg %1           # Arka plandaki işi ön plana alır
+ctrl + z        # Çalışan komutu duraklatır (sonlandırmaz)
+#+end_src
+
+*** Proseslerin İletişim Kanalları
+
+Her prosesin 3 temel iletişim kanalı vardır:
+1. ~stdin~  → Standart giriş (klavye)
+2. ~stdout~ → Standart çıkış (ekran)
+3. ~stderr~ → Hata çıktısı (ekran)
+
+Numaralandırılmış haliyle:
+- 0 → stdin
+- 1 → stdout
+- 2 → stderr
+
+Örnek:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+ls -lR > files.txt 2> errors.txt   # Standart çıktı dosyaya, hatalar ayrı dosyaya
+ls -lR > x.txt 2>&1                # Tüm çıktılar aynı dosyaya yönlendirilir
+#+end_src
+
+*** Proses Sonlandırma
+
+\vspace{2mm}
+#+begin_src bash -n -r
+kill <pid>               # Belirtilen PID numaralı prosesi sonlandırır
+kill -9 <pid>            # SIGKILL sinyali göndererek zorla sonlandırır
+killall -9 yes           # İsmi verilen tüm prosesleri öldürür
+skill -u kullanıcı_adi   # Belirtilen kullanıcıya ait tüm prosesleri sonlandırır
+#+end_src
+
+Sinyal türleri:
+- ~SIGKILL~: Anında öldürür (~-9~ ile ifade edilir)
+- ~SIGINT~: Ctrl + C ile gönderilen kesme sinyali
+- ~SIGHUP~: Oturum kapatma ile gönderilen sinyal (nazik sonlandırma)
+
+*** Proses Öncelikleri
+
+Linux'ta proses öncelikleri ~nice~ ve ~renice~ komutlarıyla ayarlanabilir:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+nice -n 10 komut     # Komutu düşük öncelikle başlatır
+renice -10 <pid>     # Çalışan bir prosesin önceliğini değiştirir
+#+end_src
+
+- Nice değeri aralığı: -20 (yüksek öncelik) ile +19 (düşük öncelik)
+- Sadece root kullanıcı önceliği artırabilir.
+- Öncelik düşükse proses daha az kaynak alır.
+
+*** Zombi ve Runaway Prosesler
+
+- 'Z' durumundaki prosesler zombi olarak adlandırılır, PPID ile ilişkisi kopmuş ancak sistemden silinmemiştir.
+- 'D' durumundakiler beklemeye alınmış, kilitli proseslerdir.
+- 'Runaway' prosesler sistem kaynaklarını tüketen, kontrol dışı kalmış süreçlerdir. Bu durumda sistem kilitlenebilir.
+
+*** Prosesleri Terminalden Bağımsız Hale Getirme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+nohup komut &      # Komutu terminalden bağımsız hale getirerek arka planda çalıştırır
+#+end_src
+
+- Terminal kapatılsa bile proses çalışmaya devam eder.
+- Bu yöntem zombi proses oluşumunu önlemek için tercih edilir.
+
+*** Kullanıcı ve Şifre Bilgileri
+
+Kullanıcı bilgileri aşağıdaki dosyalarda yer alır:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cat /etc/passwd       # Kullanıcı adı, UID, GID, ev dizini, shell gibi bilgiler
+cat /etc/shadow       # Kullanıcı şifrelerinin hash'lenmiş hali
+getent passwd         # LDAP/RADIUS gibi dış kullanıcıları da listeler
+#+end_src
+
+Örnek `/etc/passwd` satırı:
+
+```
+mint:x:999:999:live session user,,,:/home/mint:/bin/bash
+```
+
+Anlamları:
+- Kullanıcı adı
+- Parola (x → /etc/shadow'da tutulur)
+- UID (Kullanıcı ID)
+- GID (Grup ID)
+- Gecos (Ad soyad, telefon vs.)
+- Ev dizini
+- Kabuk
+
+*** Kullanıcı Bilgisi Güncelleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+chfn                 # Kullanıcının adı-soyadı gibi bilgilerini değiştirir
+chsh                 # Kullanıcının kabuğunu (ör. bash/zsh) değiştirir
+passwd               # Şifre değiştirir
+#+end_src
+
+*** Yetkili Kullanıcılar (sudo)
+
+Linux sistemlerinde root kullanıcı doğrudan oturum açamaz. Bunun yerine sudo ile yetkilendirme yapılır.
+
+- ~sudo~: Geçici olarak root yetkisiyle komut çalıştırır.
+- `/etc/sudoers` dosyası: Hangi kullanıcıların sudo kullanabileceğini belirler.
+
+Sudoers yapılandırması:
+- *Host Alias*: Hangi makinelerde geçerli
+- *User Alias*: Hangi kullanıcılar
+- *Cmnd Alias*: Hangi komutlar çalıştırılabilir
+
+** Bölüm: Grup ve Kullanıcı İşlemleri
+
+Linux sisteminde her kullanıcı mutlaka bir gruba ait olmalıdır. Bu bilgiler ~ /etc/group ~ dosyasında saklanır.
+
+*** Grup Yönetimi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+groupadd grup_adi                  # Yeni bir grup oluşturur
+sudo groupadd -g 1001 users        # Belirli grup ID'siyle grup oluşturur
+groupdel grup_adi                  # Mevcut bir grubu siler
+groups kullanıcı_adi               # Kullanıcının dahil olduğu grupları listeler
+adduser kullanıcı grup             # Kullanıcıyı gruba ekler
+#+end_src
+
+Not: Kullanıcıları gruba eklemenin en güvenli yolu doğrudan ~ /etc/group ~ dosyasını düzenlemektir.
+
+*** Kullanıcı Ekleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+  useradd kullanıcı_adi                 # Yeni kullanıcı oluşturur (grup otomatik oluşabilir)
+  sudo useradd -g users -d \
+       /home/kullanıcı -m -s /bin/bash  # Özel ev dizini ve shell tanımı ile kullanıcı ekler
+  userdel -r kullanıcı_adi              # Kullanıcıyı ve ev dizinini siler
+#+end_src
+
+Yeni kullanıcı eklenirken aşağıdaki dosyalar ve dizinler güncellenir:
+- `/etc/passwd`
+- `/etc/group`
+- `/etc/shadow`
+- `/home/kullanici/`
+- `/etc/skel/` dizinindeki varsayılan dosyalar yeni kullanıcıya kopyalanır.
+
+*** Kullanıcı Geçişi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+su kullanıcı_adi         # Başka bir kullanıcıya geçiş
+ctrl + d                 # Önceki kullanıcıya geri dönüş
+#+end_src
+
+** Bölüm: Dizin ve Dosya İzinleri
+
+Dosya ve dizin izinleri aşağıdaki sembollerle temsil edilir:
+- r: Okuma (4)
+- w: Yazma (2)
+- x: Çalıştırma / Geçiş izni (1)
+
+*** chmod: İzinleri Değiştirme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+chmod g+w dosya.txt         # Gruba yazma izni ver
+chmod u+r dosya.txt         # Kullanıcıya okuma izni ver
+chmod a-x *                 # Tüm kullanıcılardan çalıştırma iznini al
+chmod 444 dosya.txt         # Sadece okuma izni ver
+chmod a+X *                 # Sadece klasörlere çalıştırma izni ver
+#+end_src
+
+*** Sahiplik Değişimi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+chown yeni_sahip dosya.txt         # Dosyanın sahibi değişir
+chgrp grup_adi dosya.txt           # Dosyanın grubu değişir
+#+end_src
+
+*** Oturum ve Kimlik Bilgileri
+
+\vspace{2mm}
+#+begin_src bash -n -r
+w                     # Kim nereden bağlı
+who                   # Sistemde oturum açmış kullanıcılar
+#+end_src
+
+** Bölüm: Shell Kolaylıkları (bash)
+
+*** Alias Kullanımı
+
+\vspace{2mm}
+#+begin_src bash -n -r
+alias ll="ls -l"            # Kısa yol tanımı
+alias rm="rm -i"            # Silme komutuna onay mekanizması
+unalias ll                  # Alias'ı sil
+#+end_src
+
+*** Ortam Değişkenleri
+
+\vspace{2mm}
+#+begin_src bash -n -r
+echo $HOME          # Kullanıcının ev dizini
+echo $PWD           # Bulunulan dizin
+echo $PATH          # Yürütülebilir dosya arama yolu
+echo $PS1           # Komut satırı görünümü
+set | more          # Tüm environment değişkenlerini listeler
+LANG=tr_TR          # Dil ayarı
+LC_MONETARY         # Para birimi biçimi
+LC_COLLATE          # Sıralama kuralı
+#+end_src
+
+*** Ortam Değişkeni Tanımlamak
+
+\vspace{2mm}
+#+begin_src bash -n -r
+export DEG="deger"                   # Yeni ortam değişkeni tanımı
+export PATH=$PATH:$HOME/.local/bin   # Yeni path dizini ekleme
+#+end_src
+
+*** Bash Konfigürasyonları
+
+- `.bashrc`, `.bash_aliases`, `.bash_profile` dosyaları bash çalıştırıldığında yüklenir.
+- `source .bashrc` veya `.` komutuyla elle yüklenebilir.
+- Çoğu program yapılandırmalarını `~/.config/` veya `~/.local/share/` dizinine yazar.
+- `.programrc` genellikle programın yapılandırma dosyasıdır.
+
+*** Bash Tarih ve Tekrar Komutları
+
+\vspace{2mm}
+#+begin_src bash -n -r
+history               # Komut geçmişi
+!1277                 # Numara ile önceki komutu çalıştır
+!!                    # Son komutu tekrar çalıştır
+!kelime               # O kelimeyle başlayan son komutu çalıştır
+!$                    # Önceki komutun son argümanı
+rm !$                 # Önceki komutun son çıktısını rm ile sil
+which komut           # Komutun sistemdeki yolunu gösterir
+#+end_src
+
+- Komutun başına boşluk koyarsan history'e kaydolmaz.
+- `unset VAR` ile ortam değişkenini kaldırabilirsin.
+
+** Bölüm: VI Editör Temelleri
+
+*** VI ve VIM
+
+- `vi` → Temel metin editörü (VIM daha gelişmişidir)
+- `vi dosya` → Dosya açar
+- `a` veya `i` → Yazma moduna geçmek
+- `Esc` → Komut moduna dönmek
+
+*** Temel Komutlar
+
+- `x` → Karakter silme
+- `u` → Undo (geri alma)
+- `dd` → Satır silme
+- `yy` → Satır kopyalama
+- `p` → Yapıştırma
+- `G` → Dosyanın sonuna git
+- `1G` → İlk satıra git
+- `/kelime` → Arama
+- `n` → Sonraki eşleşmeye git
+
+*** Kayıt ve Çıkış
+
+- `:w` → Kaydet
+- `:q` → Çıkış (kaydetmeden çıkmak için `:q!`)
+- `:wq` veya `ZZ` → Kaydet ve çık
+- `:w yeni.txt` → Farklı adla kaydet
+
+*** Diğer
+
+- `ctrl + z` → VI'yi askıya al
+- `fg` → Ön plana al
+- `reset` → Terminal görüntüsünü sıfırlar
+
+** Bölüm: Sistemin Donanım Bilgilerini Görüntüleme
+
+Linux’ta donanım bilgilerini görmek için çeşitli komutlar kullanılır:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cat /etc/issue         # İşletim sistemi versiyonu
+uname -a               # Çekirdek ve sistem bilgisi
+uname -r               # Yalnızca çekirdek sürümünü gösterir
+free                   # RAM kullanımını gösterir
+free -h                # RAM bilgisini okunabilir formatta gösterir
+#+end_src
+
+- ~swap~ alanı fiziksel belleğin destekleyici uzantısıdır, genellikle RAM'in 2 katı büyüklüğündedir.
+- `/proc` dizini, sistem bilgilerini gösteren sanal bir dizindir.
+- `/proc/{pid}/cmdline`: İlgili prosesin başlatılma komutunu gösterir.
+- USB cihazlarını görmek için:
+  - `usb-devices`
+  - `lsusb`
+- `lshw`: Sistem donanım bileşenlerini detaylı listeler.
+
+*** Aygıt Düğümleri ve Tipleri
+
+Linux’ta tüm aygıtlar `/dev/` altında “device node” olarak temsil edilir.
+Temel aygıt türleri:
+- `b`: Blok aygıt (örneğin diskler)
+- `c`: Karakter aygıt (örneğin terminal)
+- `l`: Sembolik link
+- `d`: Dizin
+- `-`: Dosya
+
+Aygıtlar sistemde yer kaplamaz, dosya değillerdir.
+Yeni bir aygıt düğümü oluşturmak için:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+mknod /dev/isim tür major minor
+#+end_src
+
+*** Konsol ve TTY Tanımlamaları
+
+```bash
+ls -l /dev/tty*
+```
+
+- TTY aygıtları terminal giriş/çıkışı temsil eder.
+- Grafik ortamlar genellikle `tty7` ve sonrasında başlar.
+
+** Bölüm: Diskler ve Dosya Sistemleri
+
+*** Disk Bilgisi Görüntüleme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+df -h             # Bağlı disklerin kullanım durumu
+mount             # Bağlı aygıtların detayları
+#+end_src
+
+- `sda`, `sdb`: Disk sıralaması.
+- `sda1`, `sdb1`: Disk bölümleri.
+- `vfat`, `ext4`, `ntfs`: Dosya sistemi türleri.
+
+*** Disk Bağlama (Mount)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+mount /dev/sdc1 /mnt          # Aygıtı /mnt dizinine bağlar
+umount /mnt                   # Aygıtı bağlantıdan çıkarır
+mount -t ext4 /dev/sdc1 /mnt  # Dosya sistemini belirtmek gerekirse
+#+end_src
+
+- Otomatik mount için `/etc/fstab` dosyasına kayıt yapılabilir.
+- Yeni bir disk için önce partition, sonra format, ardından mount gerekir.
+
+*** Partition Oluşturma
+
+Partition yönetimi için:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo fdisk /dev/sdx
+#+end_src
+
+- `t`: Partition türünü değiştir
+- 4'ten fazla partition için `extended` ve `logical` yapılar gerekir.
+
+** Bölüm: Formatlama ve Swap Alanı
+
+Disk formatlama:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo mkfs.ext4 /dev/sdc1        # ext4 dosya sistemiyle formatla
+sudo mkfs.vfat /dev/sdc1        # FAT dosya sistemiyle formatla
+mkswap /dev/sdX                 # Swap alanı oluştur
+swapon /dev/sdX                 # Swap alanını aktif et
+swapon -a                       # /etc/fstab'a göre tüm swapları aç
+#+end_src
+
+** Bölüm: Kota (Quota)
+
+Kullanıcılara ve gruplara disk kullanımı sınırlaması koymak için kota sistemi kullanılır.
+
+- `hard limit`: Aşılamaz sınır.
+- `soft limit`: Uyarı verir, geçici aşılabilir.
+- `grace period`: Yumuşak sınırı aştıktan sonra tanınan süre.
+
+Kota ayarlamak için:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo mount -o usrquota,grpquota /dev/sdc1 /disk2
+sudo quotacheck -avug
+sudo edquota kullanıcı
+repquota -a
+#+end_src
+
+** Bölüm: Arşivleme
+
+*** ZIP, TAR Kullanımı
+
+\vspace{2mm}
+#+begin_src bash -n -r
+zip arşiv.zip *.pdf             # PDF dosyalarını zip'le
+unzip -t arşiv.zip              # Zip dosyasını test et
+tar cvf arşiv.tar *.pdf         # Arşivleme (sıkıştırma değil)
+tar tvf arşiv.tar               # Arşivin içeriğini göster
+tar xvf arşiv.tar               # Arşivi çıkar
+#+end_src
+
+** Bölüm: Sıkıştırma
+
+*** gzip, bzip2, xz
+
+\vspace{2mm}
+#+begin_src bash -n -r
+gzip dosya                      # Sıkıştırır (orijinalini siler)
+gzip -k dosya                   # Orijinal dosyayı koruyarak sıkıştırır
+gunzip dosya.gz                 # Açma işlemi
+zcat dosya.gz                   # Sıkıştırılmış dosyayı görüntüleme
+tar cvzf arşiv.tar.gz *.pdf     # gzip ile sıkıştırılmış tar dosyası oluşturur
+tar xvfz arşiv.tar.gz           # gzip arşivini açar
+tar cvjf arşiv.tar.bz2 *.pdf    # bzip2 ile sıkıştır
+tar --xz -cf arşiv.tar.xz *.pdf # xz ile sıkıştırma
+#+end_src
+
+** Bölüm: Dosya Parçalama
+
+#+begin_src bash -n -r
+split -b 4G büyük_dosya parca_         # 4GB parçalar halinde ayırır
+cat parca_* > birlesik_dosya           # Parçaları birleştir
+#+end_src
+
+*** dd ile Kopyalama
+
+\vspace{2mm}
+#+begin_src bash -n -r
+dd if=/dev/sdb of=flash.img bs=4M
+dd if=flash.img of=/dev/sdc bs=4M
+#+end_src
+
+- `if`: input file
+- `of`: output file
+- `bs`: block size
+- `count`: blok sayısı
+
+*** fsck: Dosya Sistemi Kontrolü
+
+\vspace{2mm}
+#+begin_src bash -n -r
+fsck /dev/sdX         # Bağlı olmayan diskler için çalıştırılır
+fsck -y /dev/sdX      # Otomatik düzeltme
+#+end_src
+
+** Bölüm: Yedekleme ve Senkronizasyon
+
+*** cp ve rsync Kullanımı
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cp -a kaynak hedef                               # Tüm izin ve yapı korunarak kopyalama
+rsync -av kaynak/ hedef/                         # Arşiv + detaylı çıktı
+rsync -av --delete kaynak/ hedef/                # Hedefte olmayanı silerek eşitleme
+rsync -rvt --delete kaynak/ hedef/               # FAT/NTFS için daha uygun kopyalama
+rsync -avz kaynak/ ssh:kullanici@sunucu:/hedef/  # Uzak sunucuya gönder
+rsync --dry-run --delete kaynak/ hedef/          # Ön izleme yapar, uygulamaz
+#+end_src
+
+- `--size-only`: Dosya boyuna göre eşitleme yapar
+- `--modify-window=1`: Dosya zaman damgalarındaki küçük farkları tolere eder
+
+** Bölüm: Zamanlı İşler
+
+*** at Komutu (Tek Seferlik İşler)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+echo "ls -l" | at 18:45                 # Belirtilen saatte komutu çalıştırır
+at -f islerim.sh 19:00                  # Bir shell script'i çalıştırmak için
+#+end_src
+
+Shell script örneği:
+
+```sh
+#!/bin/bash
+ls -l ~/file
+gzip -9 ~/file
+```
+
+*** cron Komutu (Periyodik İşler)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+crontab -e                # Cron job oluşturur
+crontab -l                # Kullanıcının cron işlerini listeler
+sudo crontab -u user -e   # Belirtilen kullanıcının cronlarını düzenler
+#+end_src
+
+Cron zamanlama biçimi:
+```
+Dakika Saat Gün Ay Hafta Komut
+```
+
+Örnekler:
+- `* * * * * komut` → Her dakika çalıştır
+- `*/5 * * * * komut` → Her 5 dakikada bir çalıştır
+
+*** atq / atrm
+
+\vspace{2mm}
+#+begin_src bash -n -r
+atq          # Bekleyen at işlerini listeler
+atrm <job>   # Belirtilen işi siler
+#+end_src
+
+** Bölüm: Paket Yönetimi
+
+*** Debian ve Ubuntu Sistemlerinde
+
+\vspace{2mm}
+#+begin_src bash -n -r
+    sudo apt update                     # Paket listelerini günceller
+    sudo apt upgrade                    # Kurulu paketleri günceller
+    sudo apt dist-upgrade               # Dağıtım yükseltmesi
+    sudo apt install paket              # Paket yükler
+    sudo apt install \
+         --no-install-recommends paket  # Minimum bağımlılık ile kurar
+    sudo apt remove paket               # Paketi siler (config dosyaları kalır)
+    sudo apt purge paket                # Tüm dosyalarla birlikte siler
+    sudo apt autoremove                 # Gereksiz bağımlılıkları siler
+    apt search kelime                   # Paket arama
+    apt show paket                      # Paket bilgisi göster
+    apt download paket                  # Yalnızca indirir
+    apt clean                           # Cache temizliği
+#+end_src
+
+*** dpkg ile Manuel Paket Yönetimi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo dpkg -i paket.deb              # .deb paketi kurar
+sudo dpkg -r paket                  # Paketi kaldırır
+dpkg -l                             # Tüm kurulu paketleri listeler
+dpkg -L paket                       # Paketin içerdiği dosyaları listeler
+dpkg --set-selections               # Paketleri hold (dondurmak) için
+#+end_src
+
+*** Alternatifler ve Varsayılan Uygulamalar
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo update-alternatives --config java     # Java sürümünü seç
+sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk... 1
+#+end_src
+
+*** Flatpak ve Derleme
+
+- `flatpak`: Sandboxed modern paketleme sistemi
+- Kendi uygulamanı derlemek için:
+
+\vspace{2mm}
+#+begin_src bash -n -r
+tar xvJf kaynak.tar.xz
+cd kaynak
+./configure --prefix=$HOME/.local
+make
+make install
+#+end_src
+
+** Bölüm: Çekirdek (Kernel) ve Modüller
+
+- Ana çekirdek dosyası: `vmlinuz`
+- Eski çekirdek: `vmlinuz.old`
+- Modüller: `/lib/modules/` içinde
+- Modül uzantısı: `.ko`
+
+*** Modül Yönetimi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+modprobe modul_adi           # Modülü yükler
+insmod modul.ko              # Modülü doğrudan yükler
+rmmod modul_adi              # Modülü kaldırır
+depmod -a                    # Modül bağımlılıklarını günceller
+#+end_src
+
+*** Kalıcı Modül Yükleme
+
+- `/etc/modules-load.d/modules.conf` dosyasına modül adı yazılır
+- Güncelleme sonrası tekrar yüklemek gerekebilir
+
+** Bölüm: Servis ve Sistem Açılışı
+
+*** systemd ve service komutları
+
+\vspace{2mm}
+#+begin_src bash -n -r
+sudo systemctl start servis_adi
+sudo systemctl stop servis_adi
+sudo systemctl enable servis_adi
+sudo service servis_adi restart
+#+end_src
+
+*** Runlevel Kavramı
+
+- 0: Kapat
+- 1: Tek kullanıcı (recovery)
+- 3: Metin arayüz + ağ
+- 5: Grafik arayüz
+- 6: Yeniden başlat
+
+*** Eski Init Sistemi (SysV)
+
+- `/etc/init.d/`: Servis scriptleri
+- `/etc/rcX.d/`: Çalışma seviyelerine göre servis sıralaması (K=kill, S=start)
+- `rc.local`: Açılışta özel komutlar için
+
+*** GRUB ve Bootloader
+
+- GRUB: Linux bootloader (başlangıç yöneticisi)
+- Konfigürasyon dosyası: `/boot/grub/grub.cfg`
+- `/etc/default/`: Klavye, dil vb. varsayılan ayarlar
+- Recovery Mode: Tek kullanıcı modunda açılır
+- chroot: Başka bir sistem dizinine root gibi geçiş
+
+*** Kernel Modül Kurulumu (Derleme)
+
+- `make` ile `.ko` uzantılı modül derlenir
+- `install -o root -g root -m 755` ile modül kopyalanır
+- `modprobe` ve `depmod` ile yüklenir
+
+Bu işlemler sonrası sistem çekirdek modülünü tanır ve kullanıma alır.
+
+** Bölüm: Sistemi Kapatmak
+
+\vspace{2mm}
+#+begin_src bash -n -r
+shutdown -h now         # Sistemi hemen kapatır
+shutdown -r now         # Sistemi yeniden başlatır
+#+end_src
+
+- Sadece `now` kullanılırsa sistem tek kullanıcı moduna girer.
+- `Alt + Ctrl + Delete` fiziksel olarak sistemi yeniden başlatır ancak proseslerin toparlanmasına fırsat vermez.
+- Grafik arayüz donarsa:
+  - `Ctrl + Alt + F1` ile konsola geçip `top` ile problemli prosesi tespit edin.
+  - Gerekirse `kill` komutu ile öldürün.
+  - `Ctrl + Alt + Backspace` ile X oturumunu yeniden başlatabilirsiniz.
+
+** Bölüm: Ağ (Network) Ayarları
+
+\vspace{2mm}
+#+begin_src bash -n -r
+    host google.com                 # IP adresini verir
+    host 8.8.8.8                    # Alan adını verir
+    cat /etc/hostname               # Bilgisayar adı
+    cat /etc/hosts                  # Yerel adres tanımları
+    cat /etc/resolv.conf            # DNS sunucu bilgisi
+    ifconfig -a                     # Tüm ağ arayüzlerini listeler
+    ifconfig eth0 192.168.1.11 \
+             netmask 255.255.255.0 \
+             up                     # IP ayarı
+    ifup eth0                       # Arayüzü aktif eder
+    route -n                        # Yönlendirme tablosu
+#+end_src
+
+- Statik IP için `/etc/network/interfaces.d/` dosyası düzenlenmelidir.
+- `ipcalc`, `ethtool`, `tcpdump` gibi araçlar teşhis için kullanılır.
+
+** Bölüm: Güvenlik Duvarı (Firewall)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+  iptables -L    # Kuralları listeler
+  iptables \
+      -A INPUT \
+      -p tcp \
+      --dport 443 \
+      -j ACCEPT  # 443 numaralı port (HTTPS) üzerinden gelen TCP bağlantılarına izin verir.
+  iptables \
+      -A FORWARD \
+      -d 1.2.3.4 \
+      -p tcp \
+      --dport 22 \
+      -j ACCEPT  # IP adresine 22 numaralı porttan (SSH) giden TCP bağlantılarına izin verir.
+#+end_src
+
+- `iptables` paket filtreleme kuralları belirler.
+- Hangi servisin hangi portta çalıştığını görmek için `/etc/services` dosyası incelenebilir.
+
+** Bölüm: Servisler ve Dosya Paylaşımı
+
+- `ssh -X`: Grafik arayüzü uzak makinaya yönlendirir
+- `ssh -L 8000:localhost:9000`: Port yönlendirme
+- Proxy uygulamaları: `privoxy`, `polipo`
+- NFS: UDP tabanlı dosya paylaşımı (paket kaybı olabilir)
+- Samba: Windows uyumlu paylaşım sağlar, home dizini için önerilmez
+
+** Bölüm: Güvenlik ve Yetkiler
+
+- PAM: Pluggable Authentication Modules
+  - `/etc/pam.d` ile yapılandırılır
+- SELinux, AppArmor: Güvenlik modülleri
+- `/etc/security/limits.conf`: Kaynak kullanım sınırları
+- `pam_nologin`: Girişleri sınırlar
+
+** Bölüm: ACL (Access Control List)
+
+\vspace{2mm}
+#+begin_src bash -n -r
+  mount -o acl /dev/sdX1 /mnt            # ACL desteği ile mount
+  getfacl dosya.txt                      # Mevcut izinleri listeler
+  setfacl -m u:kullanici:rwx dosya.txt   # İzin atama
+#+end_src
+
+- ACL için ext3, ext4, xfs, btrfs gibi dosya sistemleri gerekir.
+
+** Bölüm: Loglama ve Kayıtlar
+
+#+begin_src bash -n -r
+lastlog                       # En son giriş bilgisi
+dmesg                         # Sistem açılış mesajları
+cat /var/log/syslog           # Genel sistem logları
+cat /var/log/errors.log       # Hata logları
+#+end_src
+
+- `rsyslog.conf`: Log yapılandırma dosyası
+- `logrotate`: Log dosyalarını döndürüp sıkıştırır
+
+** Bölüm: Metin İşleme Komutları
+
+\vspace{2mm}
+#+begin_src bash -n -r
+cut -d: -f1 /etc/passwd                      # İlk alanı al
+awk -F: '{print $1" "$6}' /etc/passwd        # Kullanıcı adı ve home dizin
+awk -F: '$3 > 100' /etc/passwd               # UID > 100 olanlar
+sed 's/var/opt/g' dosya.txt                  # var → opt
+find / -name "*.css" -exec rm {} \;          # CSS dosyaları sil
+grep -i "text" dosya                         # Büyük/küçük harf duyarsız arama
+zgrep "text" dosya.gz                        # Sıkıştırılmış dosyada arama
+#+end_src
+
+Regex örnekleri:
+
+```bash
+^m$         # Sadece m olan satır
+^m          # m ile başlayan
+m$          # m ile biten
+```
+
+*** Döngüyle işlem yapmak
+
+```bash
+for f in *.png; do echo convert "$f" "${f/.png}.jpg"; done
+```
+
+** Bölüm: Yazıcı Yönetimi
+
+\vspace{2mm}
+#+begin_src bash -n -r
+lpq                       # Yazıcı kuyruğu
+lpr dosya.txt             # Yazdırma komutu
+lprm iş_id                # İş iptali
+sudo service cups restart # Yazıcı servisini yeniden başlat
+#+end_src
+
+- Ayarlar: `/etc/cups`
+- TR karakterler için en uygun yazıcı aracı: `paps`
+
+```bash
+paps dosya.txt | lpr
+```
+
+*** Dosya Dönüştürme
+
+\vspace{2mm}
+#+begin_src bash -n -r
+iconv -f iso8859-9 -t utf-8 dosya.txt > yeni.txt
+unix2dos dosya.txt
+dos2unix dosya.txt
+#+end_src

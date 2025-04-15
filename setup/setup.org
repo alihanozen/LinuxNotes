@@ -1,0 +1,37 @@
+#+LATEX_HEADER: \usepackage{nopageno}
+#+LATEX_HEADER: \renewcommand*{\contentsname}{İçerik}
+#+OPTIONS: ^:nil date:nil num:1 p:t prop:t author:nil
+#+LATEX_CLASS_OPTIONS: [colorlinks=true, citecolor=., linkcolor=black, urlcolor=black]
+
+#+LATEX_HEADER: \usepackage[a4paper,total={6.9in, 9.2in},includeheadfoot]{geometry}
+
+#+LATEX_HEADER: \usepackage{fancyhdr}
+#+LATEX_HEADER: \pagestyle{fancy}
+#+LATEX_HEADER: \usepackage[demo]{graphicx}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{titling}
+#+LATEX_HEADER: \usepackage{parskip}
+#+LATEX_HEADER: \setlength{\headsep}{25pt}
+#+LATEX_HEADER: \setlength{\headheight}{50pt}
+
+#+LATEX_HEADER: \pretitle{\begin{center}\LARGE\includegraphics[width=4.0cm, height=4.0cm]{./setup/logo.png}\\[\bigskipamount]}
+#+LATEX_HEADER: \posttitle{\end{center}}
+
+#+LATEX_HEADER: \lhead{\includegraphics[width=1.3cm, height=1.3cm]{./setup/logo.png}}
+#+LATEX_HEADER: \chead{}
+#+LATEX_HEADER: \rhead{Linux Notları \\}
+#+LATEX_HEADER: \lfoot{}
+#+LATEX_HEADER: \rfoot{}
+#+LATEX_HEADER: \cfoot{Sayfa \thepage}
+
+#+LATEX_HEADER: \renewcommand{\footrulewidth}{0.2pt}
+#+LATEX_HEADER: \renewcommand{\headrulewidth}{0.8pt}
+
+#+LATEX_HEADER: \setlength{\parindent}{20pt}
+
+#+LATEX_HEADER: \usepackage[document]{ragged2e}
+#+LaTeX_HEADER: \usepackage{minted}
+
+#+LATEX_HEADER_EXTRA: \usepackage{mdframed}
+#+LATEX_HEADER_EXTRA: \BeforeBeginEnvironment{minted}{\begin{mdframed}}
+#+LATEX_HEADER_EXTRA: \AfterEndEnvironment{minted}{\end{mdframed}}
